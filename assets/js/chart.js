@@ -1,7 +1,6 @@
 //charts
-document.getElementById('clientInfo').innerHTML=config.client;
 var loadBarChart=(id,widths,heights,jsonData)=>{
-
+  
  
 
   let box = document.querySelector('.pageViewCard');
@@ -27,84 +26,46 @@ var loadBarChart=(id,widths,heights,jsonData)=>{
      .append("g")
      .attr("transform", `translate(${dimensions.margin.left},${dimensions.margin.top})`);
 
-    
- const xAxisG = svg.append('g')
-     .attr('transform',  `translate(${dimensions.margin.left},${dimensions.margin.top})`);
- const yAxisG = svg.append('g');
- 
- xAxisG.append('text')
-     .attr('class', 'axis-label')
-     .attr('y',0)
-     .attr('x', 0)
-     .text("Time");
- 
- yAxisG.append('text')
-     .attr('class', 'axis-label')
-     .attr('transform', `rotate(-90)`)
-     .attr('y', 0)
-     .attr('x',-90)
-     
-     .text("Page Views");
 
 // Initialize the X axis
-const x = d3.scaleTime().range([0, dimensions.width]);
-var xAxis = d3.axisBottom().scale(x).tickPadding(15)
-.tickSize(-height);;
-svg.append("g")
-  .attr("transform", "translate(0," + height + ")")
-  .attr("class","myXaxis")
+const x = d3.scaleBand()
+  .range([ 0, width ])
+  .padding(0.2);
+const xAxis = svg.append("g")
+  .attr("transform", `translate(0,${height})`)
 
-  
-
-const y = d3.scaleLinear().range([height, 0]);
-const yAxis = d3.axisLeft().scale(y);
-svg.append("g")
-  .attr("class","myYaxis")
-
+// Initialize the Y axis
+const y = d3.scaleLinear()
+  .range([ height, 0]);
+const yAxis = svg.append("g")
+  .attr("class", "myYaxis")
 
 
 // A function that create / update the plot for a given variable:
 function updateBarChart(jsonData) {
     let data= manipulateNamejsonData(jsonData);
-    data.forEach(function(d) {
-      d.date =new Date(d.date);
-      d.close = +d.close;
-    });
-    
-     console.log(data);
   // Update the X axis
-  x.domain(d3.extent(data, function(d) { return d.date }) );
-  svg.selectAll(".myXaxis").transition()
-    .duration(3000)
-    .call(xAxis);
-
-    
+  x.domain(data.map(d => d.name))
+  xAxis.call(d3.axisBottom(x)
+  .tickFormat(function(d){return d.slice(0, 5)+".."})
+  )
   // Update the Y axis
   y.domain([0, d3.max(data, d => d.val) ]);
+  yAxis.transition().duration(1000).call(d3.axisLeft(y));
 
   // Create the u variable
+  var u = svg.selectAll("rect")
+    .data(data)
 
-  svg.selectAll(".dot")
-  .data(data)
-  .enter()
-  .append("circle")
-    .attr("class", "dot")
-    // .attr("r", 
-    //   function(d) {
-    //     return (4 + (d.TotalEnrollment * .0006));
-    //   })//gave it a base 3.4 plus a proportional amount to the enrollment
-    .attr("cx", 
-      function(d) {
-        return x(d.date);
-      })
-      .attr("r",8)
-    .attr("cy", 
-      function(d) {
-        return y(d.val);
-      })
-
-// xAxisG.call(xAxis);
-// yAxisG.call(yAxis);
+  u
+    .join("rect") // Add a new rect for each new elements
+    .transition()
+    .duration(1000)
+      .attr("x", d => x(d.name))
+      .attr("y", d => y(d.val))
+      .attr("width", x.bandwidth())
+      .attr("height", d => height - y(d.val))
+      .attr("fill", "#69b3a2")
 }
 
 // Initialize the plot with the first dataset
@@ -116,7 +77,7 @@ return {
 }
 
 var loadLineChart=(id,widths,heights,jsonData)=>{
-  // console.log(jsonData);
+  
   let box = document.querySelector('.lineViewCard');
   widths=box.offsetWidth-30;
   // set the dimensions and margins of the graph
@@ -152,7 +113,6 @@ svg.append("g")
   function updateLineChart(jsonData) {
 // console.log(jsonData);
     let data=manipulateDatejsonData(jsonData);
-    // console.log(data);
   // format the data
   data.forEach(function(d) {
     d.date =parseTime(d.date);
@@ -540,54 +500,51 @@ var manipulateNamejsonData=(jsonData)=>{
    
     jsonData.forEach(function(item,index)
     {  
-    //  console.log(item);
+     
       let i=0;
         while(i<jsonData[index].breakdown.length)
         {
-          if(item.breakdown[i].counts[0]!=0)
+          if(index==0)
        {
-      //    if(item.breakdown[i].name!='coolray:us:en')
-      //  {
+         if(item.breakdown[i].name!='coolray:us:en')
+       {
 
       
            newArray.push({
             name:item.breakdown[i].name,
-            val:Number(item.breakdown[i].counts[0]),
-            date:item.name
+            val:Number(item.breakdown[i].counts[0])
            })
            }
-      // }
-       //else{
+       }
+       else{
          
-          //  let newItem=newArray.find(x=>x.name===item.breakdown[i].name);
+           let newItem=newArray.find(x=>x.name===item.breakdown[i].name);
        
-          //  if(newItem!=undefined)
-          //  newItem.val+=Number(item.breakdown[i].counts[0]);
-          //  else
-          //  {
-          //   if(item.breakdown[i].name!='coolray:us:en')
-          //   {
+           if(newItem!=undefined)
+           newItem.val+=Number(item.breakdown[i].counts[0]);
+           else
+           {
+            if(item.breakdown[i].name!='coolray:us:en')
+            {
      
-      //       newArray.push({
-      //           name:item.breakdown[i].name,
-      //           val:Number(item.breakdown[i].counts[0]),
-      //           date:item.name
-      //          })
-      // //         }
-      //      }
+            newArray.push({
+                name:item.breakdown[i].name,
+                val:Number(item.breakdown[i].counts[0])
+               })
+              }
+           }
 
-      //  }
-      
- //       }  
- i++;
-      }
+       }
+       i++;
+        }  
+
 
     });
     return newArray;
 }
 
 var manipulateLocationjsonData=(jsonData)=>{
-
+  console.log(jsonData);
   let newArray=[];
   
  

@@ -57,7 +57,7 @@ var getPageViews = (params)=>{
            let pageViewJson=res.responseJSON.report.data;
            document.getElementById('pageViewsContainer').innerText=pageViewsData.report.totals[0];
     
-            foo =  loadBarChart('pageViewsBarChart',580,502,pageViewJson);
+            foo =  loadBarChart('pageViewsBarChart',580,592,pageViewJson);
             line= loadLineChart('#pageViewsLineChart',560,180,pageViewJson);
           }) ;
           
