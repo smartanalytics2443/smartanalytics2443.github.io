@@ -6,6 +6,7 @@
 */
 
 var config = {
+    client:         "Coolray",
     username:       "ritesh.gupta@tadigital.com:WRENCH GROUP LLC",
     secret:         "9023bdb5483f0853d4c41abec30a11bd",
     reportSuite:    "wrenchgroupcoolraymrplumberbriteboxprod",
