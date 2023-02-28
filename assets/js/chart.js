@@ -1,4 +1,5 @@
 //charts
+document.getElementById('clientInfo').innerHTML=config.client;
 var loadBarChart=(id,widths,heights,jsonData)=>{
 
  
